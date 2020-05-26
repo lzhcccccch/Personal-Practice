@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>Personal-Practice</artifactId>
+        <groupId>com.lzhch.framework.practice</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>Springboot-MybatisPlus-Generator</artifactId>
+
+    <dependencies>
+        <!--封装 MybatisPlus 以及 MySQL 和 druid 等基础依赖-->
+        <dependency>
+            <groupId>com.bcp.sdp.msp.global</groupId>
+            <artifactId>SDP-MSP-Common-MybatisPlus</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!--MybatisPlus 自动生成器依赖-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <!-- 模板引擎依赖 MyBatis-Plus 支持 Velocity（默认）、Freemarker、Beetl -->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <!-- 模板引擎依赖 Freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.29</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>

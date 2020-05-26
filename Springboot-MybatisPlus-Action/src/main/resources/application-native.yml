@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/food_ranking_system?characterEncoding=UTF-8
+    username: root
+    password: root#123QAZ!
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 20
+      initial-size: 5
+      min-idle: 5
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+mybatis-plus:
+  # MyBatis Mapper 所对应的 XML 文件位置.
+  # Maven 多模块项目的扫描路径需以 classpath*: 开头(即加载多个 jar 包下的 XML 文件)
+  mapper-locations: classpath*:mybatis/mapper/**/*.xml
+  global-config:
+    db-config:
+      # 主键类型
+      id-type: auto
+      # 全局逻辑删除字段值
+      logic-delete-field: is_delete
+      # 逻辑未删除值(默认为 0)
+      logic-not-delete-value: 1
+      # 逻辑已删除值(默认为 1)
+      logic-delete-value: 2
+  configuration:
+    # 是否开启自动驼峰命名规则映射, 数据库下划线命名列名到 Java 驼峰命名. 数据库命名符合规则无需使用 @TableField 注解指定数据库字段名
+    map-underscore-to-camel-case: true
+    # Mybatis一级缓存, 默认为 SESSION. 单服务开启可提高性能, 微服务需关闭, 因为同一个session相同查询语句不会再次查询数据库, 产生脏数据
+    local-cache-scope: statement  # 关闭一级缓存
+    # 开启Mybatis二级缓存, 默认为 true
+    cache-enabled: false
+    # 打印sql语句
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 打印sql语句
+#logging:
+#  level:
+#    com.bcp.sdp.system: debug
