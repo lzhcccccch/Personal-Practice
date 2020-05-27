@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 
 /**
@@ -50,6 +51,14 @@ public class CodeGenerator {
     }
 
     public static void main(String[] args) {
+
+        // 该方法默认读取的是resources文件夹下的以.properties为后缀的文件
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("config");
+        String url = resourceBundle.getString("dataSource.url");
+        String driver = resourceBundle.getString("dataSource.driver");
+        String userName = resourceBundle.getString("dataSource.userName");
+        String password = resourceBundle.getString("dataSource.password");
+        String packageParent = resourceBundle.getString("package.parent");
 
         // 代码生成器
         AutoGenerator mpg = new AutoGenerator();
@@ -106,10 +115,10 @@ public class CodeGenerator {
          *  数据源配置 [通过该配置, 指定需要生成代码的具体数据库]
          */
         DataSourceConfig dataSourceConfig = new DataSourceConfig();
-        dataSourceConfig.setUrl("jdbc:mysql://localhost:3306/myself_lzc?characterEncoding=UTF-8");
-        dataSourceConfig.setDriverName("com.mysql.jdbc.Driver");
-        dataSourceConfig.setUsername("root");
-        dataSourceConfig.setPassword("root#123QAZ!");
+        dataSourceConfig.setUrl(url);
+        dataSourceConfig.setDriverName(driver);
+        dataSourceConfig.setUsername(userName);
+        dataSourceConfig.setPassword(password);
         // 数据库类型 该类内置了常用的数据库类型【必须】
         //dataSourceConfig.setDbType(DbType.MYSQL);
         // 数据库信息查询类.默认由 dbType 类型决定选择对应数据库内置实现.实现 IDbQuery 接口自定义数据库查询 SQL 语句 定制化返回自己需要的内容
@@ -127,7 +136,7 @@ public class CodeGenerator {
          */
         PackageConfig packageConfig = new PackageConfig();
         // 父包名。如果为空, 将下面子包名必须写全部, 否则就只需写子包名
-        packageConfig.setParent("com.lzhch.mybatisplus.generator");
+        packageConfig.setParent(packageParent);
         // 父包模块名
         packageConfig.setModuleName(scanner("模块名(包名)"));
         // Entity包名
