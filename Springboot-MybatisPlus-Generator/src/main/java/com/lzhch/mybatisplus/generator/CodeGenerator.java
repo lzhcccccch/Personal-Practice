@@ -66,12 +66,12 @@ public class CodeGenerator {
         globalConfig.setAuthor("liuzhichao");
         // 是否打开输出目录 默认为true
         globalConfig.setOpen(false);
+        // 开启 BaseResultMap 默认为false 自动在 xml 中生成 resultMap
+        globalConfig.setBaseResultMap(true);
         // 指定生成的主键的ID类型
         //globalConfig.setIdType(null);
         // 是否覆盖已有文件 默认为false
         //globalConfig.setFileOverride(false);
-        // 开启 BaseResultMap 默认为false
-        //globalConfig.setBaseResultMap(false);
         // 开启 baseColumnList 默认为false
         //globalConfig.setBaseColumnList(false);
         // 时间类型对应策略 默认为TIME_PACK
