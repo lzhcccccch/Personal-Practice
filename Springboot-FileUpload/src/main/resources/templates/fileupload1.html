@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大文件分片上传</title>
+</head>
+<body>
+<!-- input标签中有 accept 属性, 该属性只能与 type="file" 搭配使用, 规定上传文件的类型-->
+<input type="file" name="slice" id="slice" >
+<br/>
+</body>
+<!--<script src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>-->
+<script src="/static/js/jquery-3.3.1.js"></script>
+<script type="text/javascript">
+    $("#slice").change(function(event) {
+        var file = $("#slice")[0].files[0];
+        PostFile(file,0);
+    });
+    //执行分片上传
+    function PostFile(file,i, uuid){
+        var name = file.name,                           //文件名
+            size = file.size,                           //总大小
+            shardSize = 1024 * 1024 * 2,                //以2MB为一个分片,每个分片的大小
+            shardCount = Math.ceil(size / shardSize);   //总片数
+        if(i >= shardCount){
+            return;
+        }
+        //判断uuid是否存在
+        if (uuid == undefined || uuid == null) {
+            uuid = guid();
+        }
+        //console.log(size,i+1,shardSize);  //文件总大小，第一次，分片大小//
+        // var start = i * shardSize;
+        // var end = start + shardSize;
+        // var packet = file.slice(start, end);  //将文件进行切片
+        // /*  构建form表单进行提交  */
+        // var form = new FormData();
+        // form.append("uuid", uuid);// 前端生成uuid作为标识符传个后台每个文件都是一个uuid防止文件串了
+        // form.append("data", packet); //slice方法用于切出文件的一部分
+        // form.append("name", name);
+        // form.append("totalSize", size);
+        // form.append("total", shardCount); //总片数
+        // form.append("index", i + 1); //当前是第几片
+
+        var start = i * shardSize;
+        var end = start + shardSize;
+        var slicesFile = file.slice(start, end);    //将文件进行切片
+        var slicesSize = slicesFile.size;
+        /*  构建form表单进行提交  */
+        var form = new FormData();
+        form.append("uuid", uuid);// 前端生成uuid作为标识符传个后台每个文件都是一个uuid防止文件串了
+        form.append("data", slicesFile); //slice方法用于切出文件的一部分
+        form.append("slicesSize", slicesSize);
+        form.append("name", name);
+        form.append("totalSize", size);
+        form.append("total", shardCount); //总片数
+        form.append("index", i + 1); //当前是第几片
+        $.ajax({
+            // url: "http://localhost:8090/upload/doPost",
+            url: "http://localhost:8090/slices/file/upload/api/upload",
+            type: "POST",
+            data: form,
+            //timeout:"10000",  //超时10秒
+            async: true, //异步
+            dataType:"json",
+            processData: false, //很重要，告诉jquery不要对form进行处理
+            contentType: false, //很重要，指定为false才能形成正确的Content-Type
+            success: function (msg) {
+                console.log(msg);
+                /*  表示上一块文件上传成功，继续下一次  */
+                if (msg.status == 201) {
+                    form = '';
+                    i++;
+                    PostFile(file, i, uuid);
+                } else if (msg.status == 502) {
+                    form = '';
+                    /*  失败后，每2秒继续传一次分片文件  */
+                    setInterval(function () { PostFile(file, i, uuid) }, 2000);
+                } else if (msg.status == 200) {
+                    // merge(uuid, name)
+                    console.log("上传成功");
+                } else if (msg.status == 500) {
+                    console.log('第'+msg.i+'次，上传文件有误！');
+                } else {
+                    console.log('未知错误');
+                }
+            }
+        })
+    }
+
+    function merge(uuid, fileName) {
+        $.ajax({
+            url: "http://localhost:8090/upload/merge",
+            type: "GET",
+            data: {uuid: uuid, newFileName: fileName},
+            //timeout:"10000",  //超时10秒
+            async: true, //异步
+            dataType:"json",
+            success: function (msg) {
+                console.log(msg);
+            }
+        })
+    }
+
+    function guid() {
+        return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+</script>
+</html>

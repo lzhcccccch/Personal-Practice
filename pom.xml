@@ -17,6 +17,8 @@
         <module>Springboot-MybatisPlus-Action</module>
         <module>Springboot-Swagger</module>
         <module>Springboot-MybatisPlus-Generator</module>
+        <module>Multi-Thread</module>
+        <module>Springboot-FileUpload</module>
     </modules>
 
     <packaging>pom</packaging>
