@@ -29,35 +29,21 @@
         if (uuid == undefined || uuid == null) {
             uuid = guid();
         }
-        //console.log(size,i+1,shardSize);  //文件总大小，第一次，分片大小//
-        // var start = i * shardSize;
-        // var end = start + shardSize;
-        // var packet = file.slice(start, end);  //将文件进行切片
-        // /*  构建form表单进行提交  */
-        // var form = new FormData();
-        // form.append("uuid", uuid);// 前端生成uuid作为标识符传个后台每个文件都是一个uuid防止文件串了
-        // form.append("data", packet); //slice方法用于切出文件的一部分
-        // form.append("name", name);
-        // form.append("totalSize", size);
-        // form.append("total", shardCount); //总片数
-        // form.append("index", i + 1); //当前是第几片
-
+        console.log(size,i+1,shardSize);  //文件总大小，第一次，分片大小//
         var start = i * shardSize;
         var end = start + shardSize;
-        var slicesFile = file.slice(start, end);    //将文件进行切片
-        var slicesSize = slicesFile.size;
+        var packet = file.slice(start, end);  //将文件进行切片
         /*  构建form表单进行提交  */
         var form = new FormData();
         form.append("uuid", uuid);// 前端生成uuid作为标识符传个后台每个文件都是一个uuid防止文件串了
-        form.append("data", slicesFile); //slice方法用于切出文件的一部分
-        form.append("slicesSize", slicesSize);
+        form.append("data", packet); //slice方法用于切出文件的一部分
         form.append("name", name);
         form.append("totalSize", size);
         form.append("total", shardCount); //总片数
         form.append("index", i + 1); //当前是第几片
+
         $.ajax({
-            // url: "http://localhost:8090/upload/doPost",
-            url: "http://localhost:8090/slices/file/upload/api/upload",
+            url: "http://localhost:8090/upload/doPost",
             type: "POST",
             data: form,
             //timeout:"10000",  //超时10秒
@@ -77,7 +63,7 @@
                     /*  失败后，每2秒继续传一次分片文件  */
                     setInterval(function () { PostFile(file, i, uuid) }, 2000);
                 } else if (msg.status == 200) {
-                    // merge(uuid, name)
+                    merge(uuid, name)
                     console.log("上传成功");
                 } else if (msg.status == 500) {
                     console.log('第'+msg.i+'次，上传文件有误！');

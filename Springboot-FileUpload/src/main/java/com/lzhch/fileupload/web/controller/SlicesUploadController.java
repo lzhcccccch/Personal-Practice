@@ -67,6 +67,7 @@ public class SlicesUploadController {
         // 获取文件名
         String fileFullName = multipartRequest.getParameter("name");
         int lastIndexOf = fileFullName.lastIndexOf(".");
+        // 文件名字, 不带类型
         String fileName = fileFullName.substring(0, lastIndexOf);
         String fileType = fileFullName.substring(lastIndexOf+1);
         /**
@@ -147,6 +148,7 @@ public class SlicesUploadController {
                     //ServletOutputStream outputStream = response.getOutputStream();
                     //response.reset();
                     response.setCharacterEncoding("UTF-8");
+                    // URLEncoder.encode(name, "UTF-8") 第一个参数是浏览器下载时文件的默认名字, 第二个是编码类型
                     response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileOriginalName, "UTF-8"));
                     // 为防止文件名出现乱码
                     //response.setHeader("Content-Type", "application/octet-stream");
@@ -178,12 +180,16 @@ public class SlicesUploadController {
             int destPos = 0;
             for (FileSlicesFdfsRes item: list) {
                 try {
+                    // URLEncoder.encode(name, "UTF-8") 第一个参数是浏览器下载时文件的默认名字, 第二个是编码类型
                     headers.setContentDispositionFormData("attachment", URLEncoder.encode(fileOriginalName, "utf-8"));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
                 byte[] data = fdfsClient.download(item.getFileFdfsPath());
                 int dataLength = data.length;
+                // 将一个或者多个 byte[] 的内容拷贝到另一个 byte[] 中
+                // data: 源数据; 0: 从源数据的什么位置开始拷贝; allData: 目标数据源;
+                // destPos: 往目标数据源写数据时从哪个位置开始; dataLength: 往目标数据源里写多少字节的数据
                 System.arraycopy(data, 0, allData, destPos, dataLength);
                 destPos += dataLength;
             }
