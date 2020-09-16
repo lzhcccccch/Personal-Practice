@@ -1,15 +1,17 @@
 package com.lzhch.fileupload.server.application;
 
+import com.alibaba.fastjson.JSONObject;
 import com.lzhch.fileupload.feign.IFileUpload;
 import com.lzhch.fileupload.feign.dto.req.FileSlicesFdfsReq;
 import com.lzhch.fileupload.feign.dto.req.FileUploadReq;
-import com.lzhch.fileupload.feign.dto.res.FileDownloadRes;
-import com.lzhch.fileupload.feign.dto.res.FileSlicesFdfsRes;
+import com.lzhch.fileupload.feign.dto.res.FileRes;
+import com.lzhch.fileupload.feign.dto.res.SlicesFileRes;
 import com.lzhch.fileupload.server.domain.SlicesFileUploadRoot;
 import com.lzhch.fileupload.server.domain.repository.IFileUploadRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,13 +47,17 @@ public class FileUploadImpl implements IFileUpload {
     }
 
     @Override
-    public List<FileDownloadRes> downloadFile() {
+    @Transactional
+    public List<FileRes> downloadFile() {
         List<SlicesFileUploadRoot> list = repository.downloadFile();
         if (list!=null) {
-            List<FileDownloadRes> resList = new ArrayList<>(list.size());
+            List<FileRes> resList = new ArrayList<>(list.size());
             for (SlicesFileUploadRoot item : list) {
-                FileDownloadRes res = new FileDownloadRes();
+                List<SlicesFileUploadRoot> slicesList = repository.downloadSlicesFile(item.getUuid());
+                String slicesStr = JSONObject.toJSONString(slicesList);
+                FileRes res = new FileRes();
                 BeanUtils.copyProperties(item, res);
+                res.setSlicesFileJsonStr(slicesStr);
                 resList.add(res);
             }
             return resList;
@@ -60,22 +66,22 @@ public class FileUploadImpl implements IFileUpload {
     }
 
     @Override
-    public FileDownloadRes downloadFile(FileUploadReq req) {
+    public FileRes downloadFile(FileUploadReq req) {
         SlicesFileUploadRoot root = new SlicesFileUploadRoot();
         BeanUtils.copyProperties(req, root);
         SlicesFileUploadRoot result = repository.downloadFile(root);
-        FileDownloadRes res = new FileDownloadRes();
+        FileRes res = new FileRes();
         BeanUtils.copyProperties(result, res);
         return res;
     }
 
     @Override
-    public List<FileSlicesFdfsRes> downloadSlicesFile(String uuid) {
+    public List<SlicesFileRes> downloadSlicesFile(String uuid) {
         List<SlicesFileUploadRoot> list = repository.downloadSlicesFile(uuid);
         if (list!=null && list.size()>0) {
-            List<FileSlicesFdfsRes> resList = new ArrayList<>(list.size());
+            List<SlicesFileRes> resList = new ArrayList<>(list.size());
             for (SlicesFileUploadRoot item : list) {
-                FileSlicesFdfsRes res = new FileSlicesFdfsRes();
+                SlicesFileRes res = new SlicesFileRes();
                 BeanUtils.copyProperties(item, res);
                 resList.add(res);
             }

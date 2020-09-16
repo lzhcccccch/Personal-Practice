@@ -2,6 +2,7 @@ package com.lzhch.fileupload;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @packageName： com.lzhch.fileupload
@@ -12,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date: 2020-07-20 10:07
  */
 @SpringBootApplication
-//@MapperScan("com.lzhch.fileupload.server.infrastructure.persistence.mapper")
+@ComponentScan("com.lzhch.*")
 public class FileUploadApplication {
 
     public static void main(String[] args) {

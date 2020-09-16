@@ -6,14 +6,14 @@ import java.util.Date;
 
 /**
  * @packageName： com.lzhch.fileupload.feign.dto.res
- * @className: FileSlicesFdfsRes
+ * @className: SlicesFileRes
  * @description: TODO
  * @version: v1.0
  * @author: liuzhichao
  * @date: 2020-07-30 14:43
  */
 @Data
-public class FileSlicesFdfsRes {
+public class SlicesFileRes {
 
     private int id;
 

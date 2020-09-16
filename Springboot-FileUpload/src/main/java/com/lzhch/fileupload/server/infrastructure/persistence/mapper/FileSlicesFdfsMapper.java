@@ -1,7 +1,7 @@
 package com.lzhch.fileupload.server.infrastructure.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lzhch.fileupload.server.infrastructure.persistence.entity.FileSlicesFdfsEntity;
+import com.lzhch.fileupload.server.infrastructure.persistence.entity.SlicesFileEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -14,5 +14,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 //@Repository
-public interface FileSlicesFdfsMapper extends BaseMapper<FileSlicesFdfsEntity> {
+public interface FileSlicesFdfsMapper extends BaseMapper<SlicesFileEntity> {
 }

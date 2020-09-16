@@ -3,8 +3,8 @@ package com.lzhch.fileupload.server.infrastructure.persistence;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lzhch.fileupload.server.domain.SlicesFileUploadRoot;
 import com.lzhch.fileupload.server.domain.repository.IFileUploadRepository;
-import com.lzhch.fileupload.server.infrastructure.persistence.entity.FileSlicesFdfsEntity;
-import com.lzhch.fileupload.server.infrastructure.persistence.entity.FileUploadEntity;
+import com.lzhch.fileupload.server.infrastructure.persistence.entity.FileEntity;
+import com.lzhch.fileupload.server.infrastructure.persistence.entity.SlicesFileEntity;
 import com.lzhch.fileupload.server.infrastructure.persistence.mapper.FileSlicesFdfsMapper;
 import com.lzhch.fileupload.server.infrastructure.persistence.mapper.FileUploadMapper;
 import org.springframework.beans.BeanUtils;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,19 +33,20 @@ public class FileUploadRepository implements IFileUploadRepository {
 
     @Override
     public int addFile(SlicesFileUploadRoot root) {
-        FileUploadEntity entity = new FileUploadEntity();
+        FileEntity entity = new FileEntity();
         BeanUtils.copyProperties(root, entity);
         entity.setIsDelete(1);
+        entity.setCreateTime(new Date());
         int result = fileMapper.insert(entity);
         return result;
     }
 
     @Override
     public SlicesFileUploadRoot downloadFile(SlicesFileUploadRoot root) {
-        QueryWrapper<FileUploadEntity> wrapper = new QueryWrapper<>();
+        QueryWrapper<FileEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("file_original_name", root.getFileOriginalName());
         wrapper.eq("uuid", root.getUuid());
-        FileUploadEntity entity = fileMapper.selectOne(wrapper);
+        FileEntity entity = fileMapper.selectOne(wrapper);
         SlicesFileUploadRoot result = new SlicesFileUploadRoot();
         BeanUtils.copyProperties(entity, result);
         return result;
@@ -52,10 +54,12 @@ public class FileUploadRepository implements IFileUploadRepository {
 
     @Override
     public List<SlicesFileUploadRoot> downloadFile() {
-        List<FileUploadEntity> list = fileMapper.selectList(null);
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.eq("is_delete", 1);
+        List<FileEntity> list = fileMapper.selectList(wrapper);
         if (list!=null && list.size()>0) {
             List<SlicesFileUploadRoot> result = new ArrayList<>(list.size());
-            for (FileUploadEntity item : list) {
+            for (FileEntity item : list) {
                 SlicesFileUploadRoot root = new SlicesFileUploadRoot();
                 BeanUtils.copyProperties(item, root);
                 result.add(root);
@@ -72,22 +76,23 @@ public class FileUploadRepository implements IFileUploadRepository {
 
     @Override
     public int addSlicesFile(SlicesFileUploadRoot root) {
-        FileSlicesFdfsEntity entity = new FileSlicesFdfsEntity();
+        SlicesFileEntity entity = new SlicesFileEntity();
         BeanUtils.copyProperties(root, entity);
         entity.setIsDelete(1);
+        entity.setCreateTime(new Date());
         int result = slicesMapper.insert(entity);
         return result;
     }
 
     @Override
     public List<SlicesFileUploadRoot> downloadSlicesFile(String uuid) {
-        // QueryWrapper<>的泛型只传单体的即可 不可传 list 类型
-        QueryWrapper<FileSlicesFdfsEntity> wrapper = new QueryWrapper<>();
+        // QueryWrapper<>的泛型在查询 List 时不需写成 List 形式, 写单体类型即可
+        QueryWrapper<SlicesFileEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("uuid", uuid);
-        List<FileSlicesFdfsEntity> list = slicesMapper.selectList(wrapper);
+        List<SlicesFileEntity> list = slicesMapper.selectList(wrapper);
         if (list!=null && list.size()>0) {
             List<SlicesFileUploadRoot> result = new ArrayList<>(list.size());
-            for (FileSlicesFdfsEntity item : list) {
+            for (SlicesFileEntity item : list) {
                 SlicesFileUploadRoot root = new SlicesFileUploadRoot();
                 BeanUtils.copyProperties(item, root);
                 result.add(root);

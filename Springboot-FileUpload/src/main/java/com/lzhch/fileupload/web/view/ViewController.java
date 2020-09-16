@@ -1,8 +1,9 @@
 package com.lzhch.fileupload.web.view;
 
-import com.lzhch.fileupload.feign.dto.res.FileDownloadRes;
+import com.lzhch.fileupload.feign.dto.res.FileRes;
 import com.lzhch.fileupload.web.controller.SlicesUploadController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -21,6 +22,11 @@ import java.util.Map;
 @RequestMapping("/controller")
 public class ViewController {
 
+    @Value("${common.file.web.SlicesUploadUrl}")
+    private String SlicesUploadUrl;
+    @Value("${common.file.web.SlicesDownloadUrl}")
+    private String SlicesDownloadUrl;
+
     @Autowired
     SlicesUploadController uploadController;
 
@@ -29,8 +35,10 @@ public class ViewController {
     public String index(Map<String, Object> map) {
         //return "fileupload1";
         //return "fastdfsupload";
-        List<FileDownloadRes> list = uploadController.getFile();
+        List<FileRes> list = uploadController.getFile();
         map.put("data", list);
+        map.put("SlicesUploadUrl", SlicesUploadUrl);
+        map.put("SlicesDownloadUrl", SlicesDownloadUrl);
         return "slicesupload";
     }
 

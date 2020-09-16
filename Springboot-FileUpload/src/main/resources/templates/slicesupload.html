@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fastdfs 分片上传大文件</title>
+    <title>FastDFS 分片上传大文件</title>
     <link rel="stylesheet" href="/static/css/bootstrap.css">
     <style>
         form {
@@ -29,7 +29,20 @@
                     <input type="file" name="file" id="file" class="col-md-9">
                     <button id="uploadBtn" onclick="slicesUpload()" class="btn btn-default">上传</button>
                 </div>
+                <div id="progress">
+                    <div>
+                        <span id="percent">0%</span>
+                        <span id="successText">当前没有文件正在上传</span>
+                    </div>
+                </div>
             </form>
+            <!-- 如果只进行文件上传可采用 from 的 action 属性和 button 的 submit 进行实现, 无需使用 js, 代码如下-->
+<!--            <form action="/fastdfs/file/api/upload" method="post" enctype="multipart/form-data">-->
+<!--                <div class="form-group">-->
+<!--                    <input type="file" name="file" id="exampleInputFile">-->
+<!--                </div>-->
+<!--                <button type="submit" class="btn btn-default">上传</button>-->
+<!--            </form>-->
         </div>
         <div class="col-md-4 col-sm-4"></div>
     </div>
@@ -63,9 +76,9 @@
                             <span>${list.createTime?string("yyyy-MM-dd HH:mm:ss")}</span>
                         </td>
                         <td>
-<!--                            <a href="http://11.0.36.145:8090/slices/file/upload/api/download?uuid=${(list.uuid)!''}&fileOriginalName=${(list.fileOriginalName)!''}">a标签下载</a>-->
-                            <a href="http://localhost/slices/file/upload/api/download?uuid=${(list.uuid)!''}&fileOriginalName=${(list.fileOriginalName)!''}">a标签下载</a>
-                            <button onclick="downloadFile('${(list.uuid)!''}', '${(list.fileOriginalName)!''}')">下载button</button>
+                            <!-- <a href="http://11.0.36.145:8090/slices/file/upload/api/download?uuid=${(list.uuid)!''}&fileOriginalName=${(list.fileOriginalName)!''}">a标签下载</a>-->
+                            <a href="http://localhost:8090/api/file/SlicesDownload?path=${(list.slicesFileJsonStr)!''}&fileOriginalName=${(list.fileOriginalName)!''}">a标签下载</a>
+                            <button onclick="downloadFile('${(list.slicesFileJsonStr)!''}', '${(list.fileOriginalName)!''}')">下载button</button>
                         </td>
                     </tr>
                     </#list>
@@ -75,6 +88,11 @@
         </div>
         <div class="col-md-3 col-sm-3"></div>
     </div>
+    <!-- 当业务数据复杂需要将文件独立为两张表可使用 -->
+    <!-- <input id="uuid" name="uuid" type="hidden" value=""/>-->
+    <input id="SlicesUploadUrl" name="SlicesUploadUrl" type="hidden" value="${(SlicesUploadUrl)!''}">
+    <!-- <input id="serverUrl" name="serverUrl" type="hidden" value="${(serverUrl)!''}">-->
+    <input id="SlicesDownloadUrl" name="SlicesDownloadUrl" value="${(SlicesDownloadUrl)!''}" type="hidden">
 </div>
 
 </body>
@@ -89,6 +107,7 @@
 
     function slicesUpload() {
         var file = $("#file")[0].files[0];
+        document.getElementById("successText").innerText = "准备开始上传, 请稍后..."
         upload(file, 0, null);
     }
 
@@ -96,7 +115,7 @@
     function upload(file, index, uuid) {
         var name = file.name,                                   // 文件名
             totalSize = file.size,                              // 文件总大小
-            shardSize = 1024 * 1024 *2,                         // 分片大小, 2M
+            shardSize = 1024 * 1024 * 2,                         // 分片大小, 2M, 单位 B
             shardCount = Math.ceil(totalSize / shardSize);      // 分片数, 向上取整, 11.1 取 12
 
         if (index > shardCount) {
@@ -105,6 +124,8 @@
         // 判断uuid是否存在
         if (uuid==null || uuid==undefined) {
             uuid = createUuid();
+            // 当业务数据复杂需要将文件独立为两张表时, 可以利用 uuid 搭配上面的 input 实现业务数据和文件的关联
+            // document.getElementById("uuid").value = uuid;
         }
         console.log(totalSize, index+1, shardSize);  //文件总大小，第一次，分片大小//
         var start = index * shardSize;
@@ -120,12 +141,14 @@
         form.append("totalSize", totalSize);
         form.append("total", shardCount); //总片数
         form.append("index", index + 1); //当前是第几片
+        var uploadUrl = $("#SlicesUploadUrl").val();
         $.ajax({
-            url: "http://localhost:8090/slices/file/upload/api/upload",
+            url: uploadUrl,
+            // url: "http://localhost:8090/slices/file/upload/api/upload",
             // url: "http://11.0.36.145:8090/slices/file/upload/api/upload",
             type: "POST",
             data: form,
-            timeout:"10000",  //超时10秒
+            timeout:"100000",  //超时10秒
             async: true, //异步
             dataType:"json",
             processData: false, //很重要，告诉jquery不要对form进行处理
@@ -134,21 +157,55 @@
                 console.log(msg);
                 /*  表示上一块文件上传成功，继续下一次  */
                 if (msg.status == 201) {
+                    var fileUrl = msg.fileUrl;
+                    // index++; //第一次[uploadToMysql:index = 1; upload:index = 1, form 中自增了]
+                    uploadToMysql(uuid, name, fileUrl, index+1, slicesSize, shardCount, totalSize);
                     form = '';
                     index++;
+                    setProgress(index, shardCount);
                     upload(file, index, uuid);
                 } else if (msg.status == 502) {
                     form = '';
                     /*  失败后，每2秒继续传一次分片文件  */
-                    setInterval(function () { PostFile(file, i, uuid) }, 2000);
+                    setInterval(function () { upload(file, i, uuid) }, 2000);
                 } else if (msg.status == 200) {
-                    // merge(uuid, name)
+                    var fileUrl = msg.fileUrl;
+                    uploadToMysql(uuid, name, fileUrl, index+1, slicesSize, shardCount, totalSize);
+                    setProgress(index+1, shardCount);
                     console.log("上传成功");
                 } else if (msg.status == 500) {
                     console.log('第'+msg.i+'次，上传文件有误！');
                 } else {
                     console.log('未知错误');
                 }
+            }
+        })
+    }
+
+    function uploadToMysql(uuid, name, fileUrl, index, slicesSize, total, totalSize) {
+        var fileinfo = {};
+        fileinfo.uuid = uuid;
+        fileinfo.fileOriginalName = name;
+        fileinfo.fileFdfsPath = fileUrl;
+        fileinfo.fileSlicesIndex = index;
+        fileinfo.fileSlicesSize = slicesSize;
+        fileinfo.fileSlicesTotal = total;
+        fileinfo.fileSize = totalSize;
+        $.ajax({
+            url: "/slices/file/upload",
+            data: {fileInfo : JSON.stringify(fileinfo)},
+            type: "POST",
+            sync: true,
+            dataType: "text",
+            timeout: "100000",
+            // contentType: false, // 设置之后进不去 controller, 设置之后浏览器生成 contenType:text/plain 有乱码
+            success: function (msg) {
+                console.log("file upload to Mysql success!!!");
+                console.log(msg);
+            },
+            error: function (msg) {
+                console.log("file upload to Mysql fail!!!");
+                console.log(msg);
             }
         })
     }
@@ -161,24 +218,24 @@
         });
     }
 
-    function merge(uuid, fileName) {
-        $.ajax({
-            url: "http://localhost:8090/slices/file/upload/api/merge",
-            type: "GET",
-            data: {uuid: uuid, newFileName: fileName},
-            //timeout:"10000",  //超时10秒
-            async: true, //异步
-            dataType:"json",
-            success: function (msg) {
-                console.log(msg);
-            }
-        })
+    // index: 当前分片是第几片; total: 总片数
+    function setProgress(index, total) {
+        //获取所有需要的元素
+        var percent = document.getElementById("percent");
+        var successText = document.getElementById("successText");
+        var inc = Math.floor(index/total*100); // 每次增量 向下取整 55.5 取 55
+        //percent统计百分比
+        percent.innerText = inc + "%";
+        successText.innerText = "正在上传, 请稍等...";
+        if (index == total) {
+            successText.innerText = "上传成功";
+        }
     }
 
     // 下载不能用 ajax 发送请求
-    function downloadFile(uuid, fileOriginalName) {
-        // var url = "http://11.0.36.145:8090/slices/file/upload/api/download1?uuid=" + uuid + "&fileOriginalName=" + fileOriginalName;
-        var url = "http://localhost/slices/file/upload/api/download1?uuid=" + uuid + "&fileOriginalName=" + fileOriginalName;
+    function downloadFile(path, fileOriginalName) {
+        var url = $("#SlicesDownloadUrl").val();
+        var url = url + "?path=" + path + "&fileOriginalName=" + fileOriginalName;
         window.open(url);
     }
 

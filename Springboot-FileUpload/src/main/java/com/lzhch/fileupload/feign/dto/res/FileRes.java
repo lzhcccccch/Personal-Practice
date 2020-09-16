@@ -3,17 +3,18 @@ package com.lzhch.fileupload.feign.dto.res;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @packageName： com.lzhch.fileupload.feign.dto.res
- * @className: FileDownloadRes
+ * @className: FileRes
  * @description: TODO
  * @version: v1.0
  * @author: liuzhichao
  * @date: 2020-07-30 14:45
  */
 @Data
-public class FileDownloadRes {
+public class FileRes {
 
     private int id;
 
@@ -32,5 +33,20 @@ public class FileDownloadRes {
     private Date createTime;
 
     private Date updateTime;
+
+    private int fileSlicesIndex;
+
+    private int fileSlicesSize;
+
+    private String fileFdfsPath;
+
+    private String fileFullPath;
+
+    /**
+     *  分片文件的 json 格式
+     */
+    private String slicesFileJsonStr;
+
+    private List<SlicesFileRes> slicesFileRes;
 
 }

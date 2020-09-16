@@ -86,7 +86,7 @@ public class FastdfsClientUtil {
     public String uploadFile(String content, String fileExtension) {
         byte[] buff = content.getBytes(Charset.forName("UTF-8"));
         ByteArrayInputStream stream = new ByteArrayInputStream(buff);
-        StorePath storePath = storageClient.uploadFile(stream,buff.length, fileExtension,null);
+        StorePath storePath = storageClient.uploadFile(stream, buff.length, fileExtension, null);
         return getResAccessUrl(storePath);
     }
 

@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * @packageName： com.lzhch.fileupload.server.infrastructure.persistence.entity
- * @className: FileUploadEntity
+ * @className: FileEntity
  * @description: TODO
  * @version: v1.0
  * @author: liuzhichao
@@ -18,7 +18,13 @@ import java.util.Date;
  */
 @TableName("file_upload")
 @Data
-public class FileUploadEntity {
+public class FileEntity {
+
+    //private List<SlicesFileEntity> slicesFileEntities;
+    /**
+     *  分片文件的 json 格式
+     */
+    //private String slicesFileJsonStr;
 
     @TableId
     private int id;

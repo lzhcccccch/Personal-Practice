@@ -41,4 +41,9 @@ public class SlicesFileUploadRoot {
 
     private String fileFullPath;
 
+    /**
+     *  分片文件的 json 格式
+     */
+    private String slicesFileJsonStr;
+
 }

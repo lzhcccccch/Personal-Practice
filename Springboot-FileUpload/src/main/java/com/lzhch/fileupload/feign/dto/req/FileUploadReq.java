@@ -2,8 +2,6 @@ package com.lzhch.fileupload.feign.dto.req;
 
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * @packageName： com.lzhch.fileupload.dto.req
  * @className: FileUploadReq
@@ -15,21 +13,22 @@ import java.util.Date;
 @Data
 public class FileUploadReq {
 
-    private int id;
+    private String uuid;
 
     private String fileOriginalName;
+
+    private String fileFdfsPath;
+
+    private int fileSlicesIndex;
+
+    private int fileSlicesSize;
+
+    private int fileSlicesTotal;
 
     private int fileSize;
 
     private String fileType;
 
-    private String uuid;
+    private String fileFullPath;
 
-    private int fileSlicesTotal;
-
-    private int isDelete;
-
-    private Date createTime;
-
-    private Date updateTime;
 }

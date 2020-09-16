@@ -2,8 +2,8 @@ package com.lzhch.fileupload.feign;
 
 import com.lzhch.fileupload.feign.dto.req.FileSlicesFdfsReq;
 import com.lzhch.fileupload.feign.dto.req.FileUploadReq;
-import com.lzhch.fileupload.feign.dto.res.FileDownloadRes;
-import com.lzhch.fileupload.feign.dto.res.FileSlicesFdfsRes;
+import com.lzhch.fileupload.feign.dto.res.FileRes;
+import com.lzhch.fileupload.feign.dto.res.SlicesFileRes;
 
 import java.util.List;
 
@@ -21,10 +21,10 @@ public interface IFileUpload {
 
     public int uploadSlicesFile(FileSlicesFdfsReq req);
 
-    public FileDownloadRes downloadFile(FileUploadReq req);
+    public FileRes downloadFile(FileUploadReq req);
 
-    public List<FileDownloadRes> downloadFile();
+    public List<FileRes> downloadFile();
 
-    public List<FileSlicesFdfsRes> downloadSlicesFile(String uuid);
+    public List<SlicesFileRes> downloadSlicesFile(String uuid);
 
 }

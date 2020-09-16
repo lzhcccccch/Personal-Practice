@@ -2,8 +2,6 @@ spring:
   freemarker:
     # 设置是否允许HttpServletRequest属性覆盖(隐藏)控制器生成的同名模型属性。
     allow-request-override: false
-    # 设置是否允许HttpSession属性覆盖(隐藏)控制器生成的同名模型属性。
-    #    allow-session-override: false
     # 关闭缓存, 热启动 方便本地调试(build 后刷新界面即可), 上生产改为 true
     cache: false
     #检查模板位置是否存在。
@@ -12,8 +10,6 @@ spring:
     content-type: text/html
     # 设置页面编码格式
     charset: utf-8
-    # 为这种技术启用MVC视图解决方案。
-    #    enabled: true
     # 设置是否应该在与模板合并之前将所有请求属性添加到模型中。
     expose-request-attributes: false
     # 设置是否在与模板合并之前将所有 HttpSession 属性添加到模型中。
@@ -23,8 +19,6 @@ spring:
     # 更喜欢文件系统访问模板加载, 文件系统访问允许对模板更改进行热检测。
     prefer-file-system-access: false
     # 设置模板前缀名, 用于在构建 URL 时查看名称
-    #    prefix:
-    # 设置模板后缀名, 用于在构建 URL 时查看名称
     request-context-attribute: request
     # 众所周知的 FreeMarker 密钥将传递给 FreeMarker 的配置。
     settings:
@@ -33,8 +27,6 @@ spring:
     suffix: .html
     # 设置文件路径, 以逗号分隔的模板路径列表。
     template-loader-path: classpath:/templates/
-    # 可以解析的视图名称的白列表。
-    #    view-names:
   # 设置静态文件路径，js,css等
   mvc:
     static-path-pattern: /static/**
@@ -42,14 +34,17 @@ spring:
   servlet:
     multipart:
       # 单个文件大小
-      max-file-size: 10MB
+      max-file-size: 1024MB
       # 总文件大小(允许存储文件的文件夹大小)
-      max-request-size: 100MB
+      max-request-size: 2048MB
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/myself_lzc?characterEncoding=UTF-8
-    username: root
-    password: root#123QAZ!
+#    url: jdbc:mysql://localhost:3306/myself_lzc?characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+#    username: root
+#    password: root#123QAZ!
+    url: jdbc:mysql://11.11.237.201:8066/cms?useUnicode=true&characterEncoding=UTF8&useSSL=FALSE&serverTimezone=Asia/Shanghai
+    username: sdp
+    password: lajsdhf*^KH@LJHljsdf
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       max-active: 20
@@ -93,16 +88,26 @@ fdfs:
 #    width: 150
 #    height: 150
   tracker-list:            #TrackerList参数,支持多个
-    - 139.224.130.26:22122
-#    - 11.11.237.205:22122
-  web-server-url: 139.224.130.26:8093/
-#  web-server-url: 11.11.237.205:8888/
+#    - 139.224.130.26:22122
+    - 11.11.237.205:22122
+#  web-server-url: 139.224.130.26:8093/
+  web-server-url: 11.11.237.205:8888/
+  pool:
+    # 连接池最大数量
+    max-total: 200
+    # 单个tracker最大连接数
+    max-total-per-key: 50
+    # 连接耗尽最大等待时间(毫秒)
+    max-wait-millis: 5000
 
 common:
   file:
     native:
       fileUploadTempDir: /Users/liuzhichao/fileupload
       fileUploadDir: /Users/liuzhichao/fileupload
+    web:
+      SlicesUploadUrl: http://localhost:8090/api/file/SlicesUpload
+      SlicesDownloadUrl: http://localhost:8090/api/file/SlicesDownload
 
 
 # springboot 项目界面默认存放在 static 下面, 配置路径时省略 static 即可.

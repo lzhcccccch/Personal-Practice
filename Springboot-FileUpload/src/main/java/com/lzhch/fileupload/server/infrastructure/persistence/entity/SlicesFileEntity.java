@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * @packageName： com.lzhch.fileupload.server.infrastructure.persistence.entity
- * @className: FileSlicesFdfsEntity
+ * @className: SlicesFileEntity
  * @description: TODO
  * @version: v1.0
  * @author: liuzhichao
@@ -18,7 +18,7 @@ import java.util.Date;
  */
 @TableName("file_slices_fdfs")
 @Data
-public class FileSlicesFdfsEntity {
+public class SlicesFileEntity {
 
     @TableId
     private int id;

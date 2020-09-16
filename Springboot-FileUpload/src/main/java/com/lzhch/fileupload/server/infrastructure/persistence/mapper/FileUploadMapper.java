@@ -1,7 +1,7 @@
 package com.lzhch.fileupload.server.infrastructure.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lzhch.fileupload.server.infrastructure.persistence.entity.FileUploadEntity;
+import com.lzhch.fileupload.server.infrastructure.persistence.entity.FileEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -14,5 +14,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 //@Component
-public interface FileUploadMapper extends BaseMapper<FileUploadEntity> {
+public interface FileUploadMapper extends BaseMapper<FileEntity> {
 }
