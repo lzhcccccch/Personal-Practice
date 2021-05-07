@@ -1,8 +1,5 @@
 package com.lzhch.swagger;
 
-import com.google.common.base.Predicates;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -11,24 +8,18 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * @packageName： com.lzhch.swagger
- * @className: SwaggerApplication
- * @description: TODO
+ * @className: Swagger2Config
+ * @description:  使用 swagger 文档, 使用配置类或者将代码直接当如启动类中
  * @version: v1.0
  * @author: liuzhichao
- * @date: 2020-05-20 15:11
+ * @date: 2021-01-22 11:15
  */
-@SpringBootApplication
-@EnableSwagger2
-public class SwaggerApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(SwaggerApplication.class, args);
-        System.out.println("<--------start--------->");
-    }
+//@EnableSwagger2
+//@Configuration // 使用配置类的方式需要启用这两个注解 暂时使用直接放到启动类中的方式
+public class Swagger2Config {
 
     @Bean
     public Docket createRestApi(){
@@ -39,12 +30,12 @@ public class SwaggerApplication {
                 .apis(RequestHandlerSelectors.any())
                 // PathSelectors.any() 表示所有路径都放行
                 .paths(
-                        //PathSelectors.any()
-                        Predicates.or(
-                        // 过滤显示接口
-                        PathSelectors.regex("/users" + ".*"),
-                        PathSelectors.regex("/url" + ".*")
-                        )
+                        PathSelectors.any()
+                        //Predicates.or(
+                        //// 过滤显示接口
+                        //PathSelectors.regex("/users" + ".*"),
+                        //PathSelectors.regex("/url" + ".*")
+                        //)
                 )
                 .build();
     }
@@ -57,6 +48,8 @@ public class SwaggerApplication {
                 .description("系统接口测试.")
                 // 联系人
                 .contact(new Contact("liuzhichao", null,"www.liuzhichao00@163.com"))
+                // 服务地址
+                .termsOfServiceUrl("http://localhost:8090/doc.html")
                 // 版本
                 .version("1.0")
                 .build();

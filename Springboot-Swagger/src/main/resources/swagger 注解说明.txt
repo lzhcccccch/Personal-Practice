@@ -1,0 +1,9 @@
+@Api(tags="xxx") 标注在类上, 对类进行说明
+@ApiOperation(value="xxx", notes="xxx") 标注在方法上, 对方法进行说明(notes 相当于描述可有可无)
+@ApiImplicitParams({@ApiImplicitParam(),@ApiImplicitParam()}) 标注在方法上, 对方法的多个参数进行说明
+    (里面是多个@ApiImplicitParam注解, 传参是对象(对象里封装了多个参数)时也可使用
+@ApiImplicitParam(name="xxx", value="xxx", dataType="", required=true/false)
+    标注在方法上, 对方法的一个参数进行说明(name 表示对那个参数进行说明, value 是具体说明, dataType 是数据类型 required 表示是否必须传参)
+@ApiModel(value="xxx") 标注在模型 model 上, 对模型进行说明
+@ApiModelProperty(value="xxx") 标注在属性上, 对模型的属性进行说明
+@ApiIgnore 标注在类或者方法上, 表示忽略这个类或方法
