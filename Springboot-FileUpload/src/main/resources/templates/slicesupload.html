@@ -148,7 +148,7 @@
             // url: "http://11.0.36.145:8090/slices/file/upload/api/upload",
             type: "POST",
             data: form,
-            timeout:"100000",  //超时10秒
+            // timeout:"100000",  //超时10秒
             async: true, //异步
             dataType:"json",
             processData: false, //很重要，告诉jquery不要对form进行处理
@@ -166,8 +166,10 @@
                     upload(file, index, uuid);
                 } else if (msg.status == 502) {
                     form = '';
-                    /*  失败后，每2秒继续传一次分片文件  */
-                    setInterval(function () { upload(file, i, uuid) }, 2000);
+                    upload(file, i, uuid);
+                    /*  失败后, 每2秒继续传一次分片文件 */
+                    /* setInterval() 是定时器, 需手动关闭, 否则应该会一直执行, 可能是造成多余分片的原因*/
+                    // setInterval(function () { upload(file, i, uuid) }, 2000);
                 } else if (msg.status == 200) {
                     var fileUrl = msg.fileUrl;
                     uploadToMysql(uuid, name, fileUrl, index+1, slicesSize, shardCount, totalSize);
@@ -197,14 +199,14 @@
             type: "POST",
             sync: true,
             dataType: "text",
-            timeout: "100000",
+            // timeout: "100000",
             // contentType: false, // 设置之后进不去 controller, 设置之后浏览器生成 contenType:text/plain 有乱码
             success: function (msg) {
-                console.log("file upload to Mysql success!!!");
+                console.log("file upload to Mysql success!!!" + index);
                 console.log(msg);
             },
             error: function (msg) {
-                console.log("file upload to Mysql fail!!!");
+                console.log("file upload to Mysql fail!!!" + index);
                 console.log(msg);
             }
         })
@@ -232,11 +234,16 @@
         }
     }
 
-    // 下载不能用 ajax 发送请求
+    // 下载不能用 ajax 发送请求(js不能操作本地文件系统,所以下载只能让浏览器来接管文件下载)
     function downloadFile(path, fileOriginalName) {
         var url = $("#SlicesDownloadUrl").val();
         var url = url + "?path=" + path + "&fileOriginalName=" + fileOriginalName;
+        // 下载时 path 的值是 index,path,size(第几片,路径,大小), 如果分片太多会造成 url 过长
+        // 所以在实际中可以将 path 的值换成一个 redis 的 key, key 可以是 uuid 等
+        // redis 的值便是 path 然后将 redis 的 key 传到下载接口, 根据 key 获取路径
         window.open(url);
+        // window.location 可以实现不打开新的标签即下载 但是点击下载会造成表面没反应的情况(实际已请求接口) 体验不好
+        // window.location=url;
     }
 
     // function downloadFile(uuid) {
