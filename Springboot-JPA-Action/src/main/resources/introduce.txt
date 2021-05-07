@@ -1,0 +1,116 @@
+
+1. 什么是 JPA?
+    JPA(Java Persistence API)Java持久化API。是一套Sun公司Java官方制定的ORM方案, 是规范, 是标准, sun公司自己并没有实现
+    是JDK 5.0注解或XML描述对象－关系表的映射关系, 并将运行期的实体对象持久化到数据库中。
+
+2. JPA 有什么优势:
+    2.1标准化
+        JPA 是 JCP 组织发布的 Java EE 标准之一，因此任何声称符合 JPA 标准的框架都遵循同样的架构，提供相同的访问API，这保证了基于JPA开发的企业应用能够经过少量的修改就能够在不同的JPA框架下运行。
+    2.2容器级特性的支持
+        JPA框架中支持大数据集、事务、并发等容器级事务，这使得 JPA 超越了简单持久化框架的局限，在企业应用发挥更大的作用。
+    2.3简单方便
+        JPA的主要目标之一就是提供更加简单的编程模型：在JPA框架下创建实体和创建Java 类一样简单，没有任何的约束和限制，只需要使用 javax.persistence.Entity进行注释，JPA的框架和接口也都非常简单，没有太多特别的规则和设计模式的要求，开发者可以很容易的掌握。JPA基于非侵入式原则设计，因此可以很容易的和其它框架或者容器集成。
+    2.4查询能力
+        JPA的查询语言是面向对象而非面向数据库的，它以面向对象的自然语法构造查询语句，可以看成是Hibernate HQL的等价物。JPA定义了独特的JPQL（Java Persistence Query Language），JPQL是EJB QL的一种扩展，它是针对实体的一种查询语言，操作对象是实体，而不是关系数据库的表，而且能够支持批量更新和修改、JOIN、GROUP BY、HAVING 等通常只有 SQL 才能够提供的高级查询特性，甚至还能够支持子查询。
+    2.4高级特性
+        JPA 中能够支持面向对象的高级特性，如类之间的继承、多态和类之间的复杂关系，这样的支持能够让开发者最大限度的使用面向对象的模型设计企业应用，而不需要自行处理这些特性在关系数据库的持久化。
+
+3. ORM 是什么?
+    ORM（Object Relational Mapping）对象关系映射。
+
+4. ORM 有什么作用?
+    在操作数据库之前, 先把数据表与实体类关联起来。然后通过实体类的对象操作（增删改查）数据库表, 这个就是ORM的行为
+    所以, ORM是一个实现使用对象操作数据库的设计思想
+    通过这句话, 我们知道JPA的作用就是通过对象操作数据库的, 不用编写sql语句。
+
+5. JPA 的实现者有哪些?
+    既然我们说JPA是一套标准, 意味着, 它只是一套实现 ORM 理论的接口, 没有实现的代码。 
+    那么我们必须要有具体的实现者才可以完成ORM操作功能的实现, 市场上的主流的JPA框架（实现者）有： 
+        Hibernate(JBoos)、EclipseTop(Eclipse社区)、OpenJPA(Apache基金会)
+    其中 Hibernate 是众多实现者之中性能最好的。
+    所以, Hibernate 和 JPA 的关系便一目了然. Hibernate 是 JPA 的一个具体实现.
+
+5. 什么是 Spring Data JPA?
+    Spring Data JPA 是 Spring 提供的一套简化 JPA 开发的框架, 按照约定好的【方法命名规则】写 dao 层接口, 就可以在不写接口实现的情况下, 实现对数据库的访问和操作。
+    同时提供了很多除了 CRUD之外 的功能, 如分页、排序、复杂查询等等。
+    Spring Data JPA 可以理解为 JPA 规范的再次封装抽象, 底层还是使用了 Hibernate 的 JPA 技术实现。
+    因为 Spring Data JPA 是对于 JPA 的再次规范, 所以 Spring Data JPA 处于 JPA 和 Hibernate 之间, 关系为:
+        JPA --> Spring Data JPA --> Hibernate(以及其他实现者)
+
+6. JPA 和 MybatisPlus 的区别
+    MybatisPlus 是由下向上(即由数据库表到业务)的编程方式
+    JPA 是由上向下(从业务开始到数据库), 而且 JPA 可以避免手动创建表, 在程序启动时可以自动创建表, 更加关注业务.
+
+7. 使用 JPA 进行更新操作
+    JPA 并没有提供直接进行更新的接口. 所以, 在使用 JPA 原生 API 进行更新操作时其实是调用 save() 方法
+    而调用 save() 方法时也会有两种情况:
+        save() 方法实现更新和新增就是通过判断 id(@ID标注的字段) 是否存在, 存在即更新, 不存在则新增
+        数据库表的主键设置为自增搭配 GenerationType.IDENTITY; 否则使用 GenerationType.AUTO (由程序控制)
+        (1) 直接调用 save() 方法, 入参是对象
+            这种方式有几个值是必须要传的 id(@ID 标注的) 和 标注为唯一值或不为空的等, 否则会报错
+            这种方式默认是全部覆盖更新, 即不传的值则为空, 所以会造成数据更新异常, 需要进行 null 的处理
+            @DynamicInsert 可以进行 null 处理, 为 null 的字段不会出现在 SQL 的 insert 中
+            @DynamicUpdate 并不能进行 null 处理, 因为这个注解是更新变化的字段而不是指定的字段 即如果本身数据库中某字段有值
+                传入的实体该字段为 null 则会认为这两个值是不同的 则会用 null 覆盖原有的值
+        (2) 先调用查询方法(具体根据什么查询可自己定义, 查出对象值即可), 再执行 save() 方法
+            这种方法先调用查询方法获取对象 (举例: User user = repository.findUserByUserId(userId);)
+            然后再操作这个对象, 也可以直接通过 spring 提供的 BeanUtils 直接 copy 对象, 注意处理 null
+                (举例: user.setAddress("xxxxxx");)
+            最后调用 save() 方法, 将完整对象进行保存, 即可实现动态的修改 (举例: repository.save(user);)
+        Hibernate 在指定了 id 的时候进行 save() 方法会先进行 select, 再执行 insert; 如果不指定 id, 那么就会直接进行 insert
+    总之, 使用 save() 进行更新一定要注意是 @ID 注解所标注的字段, 相同才会执行更新操作, 但是也要保证其他主键等字段的值
+    前提是数据库表中的主键字段一定要和实体类的主键策略对应上
+
+    注意: save() 方法进行更新操作默认是全覆盖(即会 set 所有字段, 那么不想修改的字段会为 null 然后覆盖数据库 造成更新操作异常)
+        所以要进行本不想修改的字段为 null 的问题, 防止造成数据错误
+        @DynamicUpdate 注解并不会处理 null 值, 因为 null 和数据库中本身有数据就已经是不同值了
+
+    另外, 可以使用 jql 进行更新, 即使用 @Query 和 @Modifying共同完成, 另外使用 jql 必须开启事务
+    但是使用 jql 必须要写完整 SQL 而且不能实现动态修改某个属性, 要写完整的 SQL 才能实现动态的修改
+
+8. 关于 save() 和 saveAndFlush() 的区别:
+    save() 方法: 除非直到显式调用 flush() 或 commit() 方法 否则与 save 操作相关联的数据将不会刷新到 DB
+    saveAndFlush() : 在执行期间立即刷新数据到 DB
+        一般情况下 save 就足够了, 但是如果在同一个 transaction 里, 比如你在方法上标了 @Transactional
+    这时你想先保存 Order, 然后直接在这个 Transaction 里保存 OrderItem, 但是 OrderItem 需要新建的 Order 的 ID
+    这时候保存 Order 就可以用 saveAndFlush() 你的 Entity 就会有保存在数据库里的 id 了
+
+9. 关于 delete 操作:
+    delete 操作接口分为两个: JpaRepository 和 CrudRepository 里面含有不同的方法
+    (1) JpaRepository:
+        该接口中的两个方法在执行 delete 操作之前并不会执行 select
+        void deleteInBatch(Iterable<T> var1);
+            批量删除指定数据, 传的对象一定要有 id 否则报错: Caused by: org.hibernate.TransientObjectException: object references an unsaved transient instance - save the transient instance before flushing: com.lzhch.jpa.action.entity.User
+            生成 SQL:  Hibernate: delete from user where id=? or id=?
+        void deleteAllInBatch();
+            删除表里所有数据
+            SQL: Hibernate: delete from user
+    (2) CrudRepository:
+        该接口中的 4 个方法在执行 delete 操作之前都会先执行 select
+        void deleteById(ID var1);
+            先根据 id 进行查询, 记录存在则删除, 否则报错且不会执行 delete
+            解决报错的方法:
+                1. 自己先进行查询, 如果不存在则不进行 delete 操作, 但是如果 id 对应记录存在则会造成两次 select 操作
+                2. 自己进行仓库层改造, 定义一个类实现 SimpleJpaRepository 重写 deleteById() 方法, 如: UserDeleteRepository
+        void delete(T var1);
+            入参是对象的其实仍然是先根据 id 进行 select 记录存在则进行 delete, 不过该方法在记录不存在时不会抛出异常, 如果不指定 id 则不会执行任何 SQL
+        void deleteAll(Iterable<? extends T> var1);
+            与 void delete(T var1); 同理. 是对每个对象都执行 select 和 delete
+            即 var1 内有 n 个对象 则会执行 n 次 select 和 n 次 delete (循环执行void delete(T var1)方法)
+        void deleteAll();
+            删除表内所有数据
+    (3) 自定义条件删除deleteByxxx: 首先会根据定义的条件进行查询, 查询出符合条件的记录(比如 n 条)
+        然后会执行 n 次的 delete from table where id = ? 所以还是拿到了符合条件的记录的 id 然后根据 id 进行删除
+
+
+
+
+## 在服务启动时, JPA 会自动创建数据库表, 一下为第一次启动项目时控制台输出的 SQL
+Hibernate: create table hibernate_sequence (next_val bigint) engine=InnoDB
+Hibernate: insert into hibernate_sequence values ( 1 )
+Hibernate: create table user (id bigint not null, address varchar(255), password varchar(20), phone bigint, user_id integer, user_name varchar(20), primary key (id)) engine=InnoDB
+Hibernate: alter table user drop index UK_a3imlf41l37utmxiquukk8ajc
+Hibernate: alter table user add constraint UK_a3imlf41l37utmxiquukk8ajc unique (user_id)
+## 在修改表结构之后再次启动项目, 输出 SQL
+Hibernate: alter table user add column create_time datetime(6)
+Hibernate: alter table user add column update_time datetime(6)

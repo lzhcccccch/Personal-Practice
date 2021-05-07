@@ -1,0 +1,18 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: Springboot-JPA-Action
+  profiles:
+    active: native
+
+## 需要进行配置文件的配置才可进行信息监控 url: ip:port/actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
