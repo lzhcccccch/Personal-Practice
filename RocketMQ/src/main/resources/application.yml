@@ -1,0 +1,17 @@
+
+server:
+  port: 8083
+
+spring:
+  applicaiton:
+    name: Practice-RocketMq
+
+rocketmq:
+  name-server: 10.206.106.1:9876
+  producer:
+    group: ORDER_OMS_PRODUCTION_DEV
+    send-message-timeout: 3000
+    retry-times-when-send-failed: 2   # 同步发送消息时，失败重试次数。默认为 2 次。
+    retry-times-when-send-async-failed:   2 # 异步发送消息时，失败重试次数。默认为 2 次。
+  consumer:
+    group: ORDER_OMS_PRODUCTION_DEV

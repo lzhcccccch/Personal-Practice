@@ -21,6 +21,7 @@
         <module>Springboot-FileUpload</module>
         <module>Springboot-JPA-Action</module>
         <module>Stream-Lambda</module>
+        <module>RocketMQ</module>
     </modules>
 
     <packaging>pom</packaging>
