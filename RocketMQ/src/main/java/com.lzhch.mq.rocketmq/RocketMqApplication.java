@@ -13,10 +13,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-public class RocketMqApplicaiton {
+public class RocketMqApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RocketMqApplicaiton.class, args);
+        SpringApplication.run(RocketMqApplication.class, args);
         System.out.println("--------- start ----------");
     }
 
