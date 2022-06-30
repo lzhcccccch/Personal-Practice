@@ -5,6 +5,7 @@ import com.lzhch.mq.rocketmq.springboot.config.RocketMqConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.TransactionSendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.apache.rocketmq.spring.support.RocketMQHeaders;
 import org.springframework.messaging.Message;
@@ -82,6 +83,7 @@ public class RocketProvider {
          */
         log.info("orderly syncSend params :{} " + JSONObject.toJSONString(list));
         // 批量发送: 第三个参数是指定发送的队列, 循环发送时可指定为 index
+        // 顺序发送可以保证消息有序的被消费, 比如一个完整的订单: 创建订单-->支付-->完成 则需要保证消费消息的顺序, 所以要将这一组消息(三条) 发送到同一个队列进行有序消费
         SendResult syncSendOrderly = this.rocketMQTemplate.syncSendOrderly(defaultTopic, list, "1", 3000);
         log.info("orderly syncSend result :{} " + JSONObject.toJSONString(syncSendOrderly));
 
@@ -158,6 +160,7 @@ public class RocketProvider {
     /**
      * 单向消息: 非阻塞消息  消息体可以是 Object 和 Message 可批量发送
      * producer 向 broker 发送消息, 执行 API 时直接返回, 不等待服务器返回结果
+     *
      * @param params
      */
     @PostMapping("/sendOneWay")
@@ -178,7 +181,8 @@ public class RocketProvider {
     }
 
     /**
-     *  convertAndSend: 底层也是调用了 syncSend
+     * convertAndSend: 底层也是调用了 syncSend
+     *
      * @param params
      */
     @PostMapping("/convertAndSend")
@@ -192,11 +196,25 @@ public class RocketProvider {
         log.info("convertAndSend result :{} ");
     }
 
+    /**
+     * 事务消息:
+     * @param params
+     */
+    @PostMapping("/sendMessageInTransaction")
+    public void sendMessageInTransaction(@RequestBody Map<String, Object> params) {
+        log.info("sendMessageInTransaction params :{} " + JSONObject.toJSONString(params));
+        String defaultTopic = RocketMqConfig.DEFAULT_TOPIC;
+
+        Message<Map<String, Object>> message = MessageBuilder.withPayload(params).build();
+        TransactionSendResult transactionSendResult = this.rocketMQTemplate.sendMessageInTransaction(defaultTopic, message, params);
+        log.info("transactionSendResult :{} " + JSONObject.toJSONString(transactionSendResult));
+    }
+
 
     /**
-     * @description:  初始化列表
+     * @description: 初始化列表
      * @param: [params]
-     * @return: java.util.Optional<java.util.List<org.springframework.messaging.Message>>
+     * @return: java.util.Optional<java.util.List < org.springframework.messaging.Message>>
      * @author: liuzhichao 2022/6/21 15:47
      */
     private Optional<List<Message>> initList(Map<String, Object> params) {

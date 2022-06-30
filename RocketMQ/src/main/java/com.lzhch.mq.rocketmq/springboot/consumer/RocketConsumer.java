@@ -33,6 +33,11 @@ import java.util.Map;
         messageModel = MessageModel.CLUSTERING)
 public class RocketConsumer implements RocketMQListener<Map<String, Object>> {
 
+    /**
+     *  监听方法
+     * @param message
+     * 参数可以是 MessageExt 类型, 该类型会携带一些 message 的基本信息, 比如头信息等
+     */
     @Override
     public void onMessage(Map<String, Object> message) {
         log.info("rocketMQ receive message params :{} " + JSONObject.toJSONString(message));
