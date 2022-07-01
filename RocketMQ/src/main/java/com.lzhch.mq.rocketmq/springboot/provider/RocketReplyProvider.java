@@ -34,6 +34,14 @@ public class RocketReplyProvider {
         this.rocketMQTemplate = rocketMQTemplate;
     }
 
+    /**
+     *  发送具有回传消息的 Message:
+     *      该方式适用于 producer 发送了消息之后需要根据 broker 的消费拿到一些参数或者要根据结果进行业务处理的场景
+     *  有两种形式:
+     *      1. 不指定回调函数: 该方式更像同步发送, 会返回发送结果(成功与否)以及自定义的返回参数, 可以在拿到结果后进行处理
+     *      2. 指定回调函数: 该方式更像是异步发送, broker 的处理结果通过回调函数返回, 可以在指定的回调函数中处理相应的逻辑
+     * @param params
+     */
     @PostMapping("/sendAndReceive")
     public void sendAndReceive(@RequestBody Map<String, Object> params) {
         String defaultTopic = RocketMqConfig.DEFAULT_TOPIC;

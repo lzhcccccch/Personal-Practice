@@ -66,7 +66,11 @@ public class RocketProvider {
                 .setHeader(RocketMQHeaders.TAGS, "syncMessage")
                 .build();
         log.info("rocketmq syncSend message :{} " + JSONObject.toJSONString(message));
-        // params: 主题  消息内容   超时时间    延迟等级
+        /**
+         *  params: 主题  消息内容   超时时间    延迟等级
+         *  delayLevel: 延迟等级, 不同的延迟等级对应不同的延迟时间, 默认支持 18 个等级 "1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h"
+         *  当消息写入到 broker 中, 不能立马被消费, 需要等待一定时间才可以进行消息, 可以实现定时器等功能, 比如订单超时关闭(设置延迟 30 分钟, 未支付则 MQ 消费取消订单)
+         */
         SendResult messageSendResult = this.rocketMQTemplate.syncSend(defaultTopic, message, 3000, 1);
         log.info("rocketmq syncSend result :{} " + JSONObject.toJSONString(messageSendResult));
 
@@ -132,7 +136,7 @@ public class RocketProvider {
                 .setHeader(RocketMQHeaders.TAGS, "asyncMessage")
                 .build();
         log.info("rocketmq asyncSend message :{} " + JSONObject.toJSONString(message));
-        this.rocketMQTemplate.asyncSend(defaultTopic, message, callback);
+        this.rocketMQTemplate.asyncSend(defaultTopic, message, callback, 3000, 1);
         log.info("rocketmq asyncSend message end :{} ");
 
         /**
@@ -198,6 +202,8 @@ public class RocketProvider {
 
     /**
      * 事务消息:
+     * RocketMQ 事务消息是指应用本地事务和发送消息操作可以被定义到全局事务中, 要么同时成功, 要么同时失败.
+     * RocketMQ 的事务消息提供类似 X/Open XA 的分布式事务功能, 通过事务消息能达到分布式事务的最终一致
      * @param params
      */
     @PostMapping("/sendMessageInTransaction")
