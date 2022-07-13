@@ -4,14 +4,7 @@ import com.lzhch.stream.lambda.init.InitList;
 import com.lzhch.stream.lambda.init.Person;
 import org.springframework.beans.BeanUtils;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.DoubleSummaryStatistics;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -380,9 +373,9 @@ public class StreamLambdaPractice {
 
     /**
      * sorted 排序
-     *  sorted 是中间操作，有两种排序：
-     *      1. sorted()：自然排序，流中元素需实现Comparable接口
-     *      2. sorted(Comparator com)：Comparator排序器自定义排序
+     * sorted 是中间操作，有两种排序：
+     * 1. sorted()：自然排序，流中元素需实现Comparable接口
+     * 2. sorted(Comparator com)：Comparator排序器自定义排序
      */
     public void sorted() {
         List<Person> list = InitList.initList();
@@ -412,7 +405,7 @@ public class StreamLambdaPractice {
     }
 
     /**
-     *  提取、组合（concat/distinct/limit/skip）
+     * 提取、组合（concat/distinct/limit/skip）
      */
     public void other() {
         List<Person> list = InitList.initList();
@@ -439,6 +432,63 @@ public class StreamLambdaPractice {
         System.out.println("======== skip[跳过工资最低的一个人] ==========");
         List<Person> collect5 = list.stream().sorted(Comparator.comparing(Person::getSalary)).skip(1).collect(Collectors.toList());
         System.out.println("result :{} " + collect5.toString());
+    }
+
+    /**
+     * 根据对象的单个或者多个属性去重
+     */
+    public void removeDuplicates() {
+        List<Person> list = InitList.initList();
+        System.out.println("========= 根据单个属性(name)去重 ==========");
+        System.out.println("去重前 :{} " + list.toString());
+        ArrayList<Person> collect = list.stream().collect(
+                Collectors.collectingAndThen(
+                        Collectors.toCollection(
+                                () -> new TreeSet<>(Comparator.comparing(Person::getName))
+                        ), ArrayList::new
+                )
+        );
+        System.out.println("去重后 :{} " + collect.toString());
+
+        System.out.println("========= 根据多个属性(name+age)去重 ==========");
+        System.out.println("去重前 :{} " + list.toString());
+        ArrayList<Person> collect1 = list.stream().collect(
+                Collectors.collectingAndThen(
+                        Collectors.toCollection(
+                                () -> new TreeSet<>(Comparator.comparing(item -> item.getName() + item.getAge()))
+                        ), ArrayList::new
+                )
+        );
+        System.out.println("去重后 :{} " + collect1.toString());
+
+        /**
+         *  distinct 去重
+         *  如果是自定义对象则必须重写 equals() 和 hashcode() 方法
+         *  lombok 的 @Data 注解默认重写了 equals() 和 hashcode()
+         *  但是如果有父类的话 还需要加上 @EqualsAndHashCode(callSuper = true) 和 @Data 一起使用
+         *  因为 @Data 只会重写当前类的属性 不会加上父类的属性 会在某些场景下出现问题
+         */
+        System.out.println("======== distinct 去重 ==========");
+        System.out.println("去重前 :{} " + list.toString());
+        List<Person> collect2 = list.stream().distinct().collect(Collectors.toList());
+        System.out.println("去重后 :{} " + collect2.toString());
+
+        System.out.println("======== distinct 去重(Integer String....) ===========");
+        List<Object> objects = new ArrayList<>(10);
+        objects.add(1);
+        objects.add(1);
+        objects.add(1);
+        objects.add(2);
+        objects.add(2);
+        objects.add(3);
+        objects.add("1");
+        objects.add("1");
+        objects.add("2");
+        objects.add("3");
+        objects.add("3");
+        System.out.println("去重前 :{} " + objects.toString());
+        List<Object> collect3 = objects.stream().distinct().collect(Collectors.toList());
+        System.out.println("去重后 :{} " + collect3.toString());
     }
 
 }

@@ -26,7 +26,8 @@ public class StreamLambdaMain {
         // streamLambdaPractice.joining();
         // streamLambdaPractice.collectReduce();
         // streamLambdaPractice.sorted();
-        streamLambdaPractice.other();
+        // streamLambdaPractice.other();
+        streamLambdaPractice.removeDuplicates();
     }
 
 }
