@@ -5,13 +5,14 @@ import com.lzhch.stream.lambda.init.Person;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @packageName： com.lzhch.stream.lambda
- * @className: StreamLambdaPractice
- * @description: stream lambda
+ * stream lambda
+ *
  * @version: v1.0
  * @author: liuzhichao
  * @date: 2021-12-01 16:31
@@ -31,17 +32,17 @@ public class StreamLambdaPractice {
         list.forEach(x -> System.out.println(x.toString()));
 
         System.out.println("========stream.foreach=======");
-        list.stream().forEach(x -> System.out.println(x.toString()));
+        list.forEach(x -> System.out.println(x.toString()));
 
         System.out.println("========foreach complex=======");
-        list.stream().forEach(x -> {
+        list.forEach(x -> {
             if ("xxx".equals(x.getName())) {
-                System.out.println(x.toString());
+                System.out.println(x);
             }
         });
 
-        list.stream().forEach(x -> x.setAge(10));
-        System.out.println(list.toString());
+        list.forEach(x -> x.setAge(10));
+        System.out.println(list);
     }
 
     /**
@@ -52,7 +53,7 @@ public class StreamLambdaPractice {
         List<Person> list = InitList.initList();
         System.out.println("========filter=======");
         List<Person> resList = list.stream().filter(x -> x.getAge() > 24).collect(Collectors.toList());
-        System.out.println("old list :{} " + list.toString());
+        System.out.println("old list :{} " + list);
         System.out.println("resList :{} " + resList);
 
         System.out.println("========filter foreach======");
@@ -77,13 +78,13 @@ public class StreamLambdaPractice {
         System.out.println("========find first=======");
         Optional<Person> first = list.stream().findFirst();
         Person person = list.stream().findFirst().orElse(null);
-        System.out.println("first :{} " + first.get().toString());
+        System.out.println("first :{} " + first.get());
 
         System.out.println("========find any=======");
         Optional<Person> any = list.parallelStream().findAny();
-        System.out.println("any :{} " + any.get().toString());
+        System.out.println("any :{} " + any.get());
         Optional<Person> anyFilter = list.parallelStream().filter(x -> x.getAge() > 20).findAny();
-        System.out.println("any :{} " + anyFilter.get().toString());
+        System.out.println("any :{} " + anyFilter.get());
     }
 
     /**
@@ -137,7 +138,7 @@ public class StreamLambdaPractice {
 
         // 会改变原有集合的值
         System.out.println("======== map 会改变原有集合的值 =======");
-        System.out.println("original list :{} " + list.toString());
+        System.out.println("original list :{} " + list);
         // 新建一个 list 统一修改新的 list 的 address 字段为 '这是一个地址', 会修改原有的 list 的值 可以用原有的 list 去接收
         List<Person> newList = list.stream()
                 .map(x -> {
@@ -145,12 +146,12 @@ public class StreamLambdaPractice {
                     return x;
                 })
                 .collect(Collectors.toList());
-        System.out.println("new list :{} " + newList.toString());
+        System.out.println("new list :{} " + newList);
 
         // 不改变原有集合的值
         System.out.println("======== map 不改变原有集合的值 =======");
         list = InitList.initList();
-        System.out.println("original list :{} " + list.toString());
+        System.out.println("original list :{} " + list);
         // 新建一个 list 统一修改新的 list 的 address 字段为 '这是一个地址', 不会修改原有的 list 的值 需要用新的 list 去接收
         List<Person> newList1 = list.stream()
                 .map(x -> {
@@ -160,12 +161,12 @@ public class StreamLambdaPractice {
                     return person;
                 })
                 .collect(Collectors.toList());
-        System.out.println("new list :{} " + newList1.toString());
+        System.out.println("new list :{} " + newList1);
 
         // map 可以返回不同类型的 list(可用于类型转换)
         System.out.println("======== map 返回不同类型的 list(可用于类型转换) =======");
         list = InitList.initList();
-        System.out.println("original list :{} " + list.toString());
+        System.out.println("original list :{} " + list);
         // 将 list 中的 name 属性提取成一个单独的 list
         // List<String> newList3 = list.stream()
         //         .map(x -> {
@@ -176,11 +177,11 @@ public class StreamLambdaPractice {
         List<String> newList3 = list.stream()
                 .map(Person::getName)
                 .collect(Collectors.toList());
-        System.out.println("new list :{} " + newList3.toString());
+        System.out.println("new list :{} " + newList3);
 
         System.out.println("======== 分组后拼接成字符串 =============");
         list = InitList.initList();
-        System.out.println("original list :{} " + list.toString());
+        System.out.println("original list :{} " + list);
         String collect = list.stream().map(Person::getName).collect(Collectors.joining(","));
         System.out.println("new String :{} " + collect);
 
@@ -273,6 +274,8 @@ public class StreamLambdaPractice {
         System.out.println("========== 按子组收集数据[根据性别分组,每组只保留年龄最大的] =============");
         // 根据性别分组,每组只保留年龄最大的, 如果有年龄相同的默认保存第一个
         Map<String, Person> collect7 = list.stream().collect(Collectors.groupingBy(Person::getSex, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(Person::getAge)), Optional::get)));
+        // idea 建议的替代 collect7 的方法
+        Map<String, Person> collect7_1 = list.stream().collect(Collectors.toMap(Person::getSex, Function.identity(), BinaryOperator.maxBy(Comparator.comparing(Person::getAge))));
         System.out.println("groupBy :{} " + collect7.toString());
 
         System.out.println("========== 联合其他收集器[根据性别分组,每组根据姓名分组,只保留姓名] ===========");
@@ -300,15 +303,19 @@ public class StreamLambdaPractice {
         System.out.println("========== 转换为其他的集合形式 =============");
         System.out.println("========== toList(年龄大于 40 的人) =============");
         List<Person> collect = list.stream().filter(x -> x.getAge() > 40).collect(Collectors.toList());
-        System.out.println("toList(年龄大于 40 的人) :{} " + collect.toString());
+        System.out.println("toList(年龄大于 40 的人) :{} " + collect);
 
         System.out.println("========== toSet(取出所有人的性别) =============");
         Set<String> collect1 = list.stream().map(Person::getSex).collect(Collectors.toSet());
-        System.out.println("toSet(取出所有人的性别) :{} " + collect1.toString());
+        System.out.println("toSet(取出所有人的性别) :{} " + collect1);
 
         System.out.println("========== toMap(年龄大于 30 的按照姓名分组) =============");
         Map<String, Person> collect2 = list.stream().filter(x -> x.getAge() > 30).collect(Collectors.toMap(Person::getName, x -> x));
-        System.out.println("toMap(年龄大于 30 的按照姓名分组) :{} " + collect2.toString());
+        // (k1, k2) -> k1: key 重复时使用旧对象, 防止报错(默认 key 重复报错)
+        Map<String, Person> collect3 = list.stream().filter(x -> x.getAge() > 30).collect(Collectors.toMap(Person::getName, x -> x, (k1, k2) -> k1));
+        // 使用 toMap() 实现 list 转 map, 默认返回 HashMap, HashMap 是无序的, LinkedHashMap 可以实现有序(groupingBy同理)
+        LinkedHashMap<String, Person> collect4 = list.stream().filter(x -> x.getAge() > 30).collect(Collectors.toMap(Person::getName, x -> x, (k1, k2) -> k1, LinkedHashMap::new));
+        System.out.println("toMap(年龄大于 30 的按照姓名分组) :{} " + collect2);
     }
 
     /**
@@ -325,26 +332,30 @@ public class StreamLambdaPractice {
         System.out.println("========== Collectors 提供的用于数据统计的静态方法 =============");
         System.out.println("========== 求总数[年龄大于 40 的人数] ==========");
         Long collect = list.stream().filter(x -> x.getAge() > 40).collect(Collectors.counting());
+        // 与 collect 等价
+        Long collect_ = list.stream().filter(x -> x.getAge() > 40).count();
         System.out.println("求总数[年龄大于 40 的人数] :{} " + collect.toString());
 
         System.out.println("========== 求平均数[年龄大于 30 的人的平均工资] ==========");
         // averagingInt、averagingLong 同理
         Double collect1 = list.stream().filter(x -> x.getAge() > 30).collect(Collectors.averagingDouble(Person::getSalary));
-        System.out.println("求平均数[年龄大于 30 的人的平均工资] :{} " + collect1.toString());
+        System.out.println("求平均数[年龄大于 30 的人的平均工资] :{} " + collect1);
 
         System.out.println("========== 求最值[求最高工资] ==========");
         // minBy 同理
         Optional<Integer> collect2 = list.stream().map(Person::getSalary).collect(Collectors.maxBy(Integer::compare));
+        Optional<Integer> collect2_1 = list.stream().map(Person::getSalary).max(Integer::compare);
         System.out.println("求最值[求最高工资] :{} " + collect2.get());
 
         System.out.println("========== 求和[求年龄和] ==========");
         // summingLong、summingDouble 同理
         Integer collect3 = list.stream().collect(Collectors.summingInt(Person::getAge));
-        System.out.println("求和[求年龄和] :{} " + collect3.toString());
+        Integer collect3_1 = list.stream().mapToInt(Person::getAge).sum();
+        System.out.println("求和[求年龄和] :{} " + collect3);
 
         System.out.println("========== 求以上所有信息[总数/平均/最值/和] ==========");
         DoubleSummaryStatistics collect4 = list.stream().collect(Collectors.summarizingDouble(Person::getSalary));
-        System.out.println("求工资的总数/平均/最值/和] :{} " + collect4.toString());
+        System.out.println("求工资的总数/平均/最值/和] :{} " + collect4);
     }
 
     /**
@@ -356,7 +367,7 @@ public class StreamLambdaPractice {
         System.out.println("======== joining ===========");
         System.out.println("======== 将所有的人的姓名按照,组成一个新的字符串");
         String collect = list.stream().map(Person::getName).collect(Collectors.joining(","));
-        System.out.println("result :{} " + collect.toString());
+        System.out.println("result :{} " + collect);
     }
 
     /**
@@ -368,6 +379,7 @@ public class StreamLambdaPractice {
         System.out.println("======== collect-reduce[计算虚岁年龄和] ===========");
         // 从 0 开始计算虚岁年龄和, 循环中每个年龄元素+1
         Integer collect = list.stream().collect(Collectors.reducing(0, Person::getAge, (x, y) -> x + y + 1));
+        Integer collect_ = list.stream().map(Person::getAge).reduce(0, (x, y) -> x + y + 1);
         System.out.println("result :{} " + collect.toString());
     }
 
@@ -382,15 +394,15 @@ public class StreamLambdaPractice {
         System.out.println("========== sorted =============");
         System.out.println("=========== 单个条件排序(根据年龄倒序排序) ==============");
         List<Person> list1 = list.stream().sorted(Comparator.comparing(Person::getAge).reversed()).collect(Collectors.toList());
-        System.out.println("sorted :{} " + list1.toString());
+        System.out.println("sorted :{} " + list1);
 
         System.out.println("=========== 多条件排序(根据年龄降序并根据工资升序) ================");
         List<Person> list2 = list.stream().sorted(Comparator.comparing(Person::getAge).reversed().thenComparing(Person::getSalary)).collect(Collectors.toList());
-        System.out.println("sorted :{} " + list2.toString());
+        System.out.println("sorted :{} " + list2);
 
         System.out.println("=========== 多条件排序(根据年龄降序并根据工资降序) ================");
         List<Person> list3 = list.stream().sorted(Comparator.comparing(Person::getAge).reversed()).sorted(Comparator.comparing(Person::getSalary).reversed()).collect(Collectors.toList());
-        System.out.println("sorted :{} " + list3.toString());
+        System.out.println("sorted :{} " + list3);
 
         System.out.println("=========== 多条件排序(根据年龄降序并根据工资降序2) ================");
         List<Person> list4 = list.stream().sorted((x, y) -> {
@@ -401,7 +413,7 @@ public class StreamLambdaPractice {
                 return y.getAge() - x.getAge();
             }
         }).collect(Collectors.toList());
-        System.out.println("sorted :{} " + list4.toString());
+        System.out.println("sorted :{} " + list4);
     }
 
     /**
@@ -412,26 +424,26 @@ public class StreamLambdaPractice {
         System.out.println("======== concat[合并两个流] =========");
         List<Person> list1 = InitList.initList();
         List<Person> collect = Stream.concat(list.stream(), list1.stream()).collect(Collectors.toList());
-        System.out.println("concat :{} " + collect.toString());
+        System.out.println("concat :{} " + collect);
 
         System.out.println("======== distinct[去重] ==========");
         List<Person> collect1 = Stream.concat(list.stream(), list1.stream()).distinct().collect(Collectors.toList());
-        System.out.println("distinct :{} " + collect1.toString());
+        System.out.println("distinct :{} " + collect1);
 
         System.out.println("======== limit[限制从流中获得前n个数据] ==========");
         List<Person> collect2 = list.stream().limit(2).collect(Collectors.toList());
-        System.out.println("limit :{} " + collect2.toString());
+        System.out.println("limit :{} " + collect2);
         System.out.println("======== limit[获取年龄最大的两个人] ==========");
         List<Person> collect3 = list.stream().sorted(Comparator.comparing(Person::getAge).reversed()).limit(2).collect(Collectors.toList());
-        System.out.println("result :{} " + collect3.toString());
+        System.out.println("result :{} " + collect3);
 
 
         System.out.println("======== skip[跳过前n个数据] ==========");
         List<Person> collect4 = list.stream().skip(1).collect(Collectors.toList());
-        System.out.println("skip :{} " + collect4.toString());
+        System.out.println("skip :{} " + collect4);
         System.out.println("======== skip[跳过工资最低的一个人] ==========");
         List<Person> collect5 = list.stream().sorted(Comparator.comparing(Person::getSalary)).skip(1).collect(Collectors.toList());
-        System.out.println("result :{} " + collect5.toString());
+        System.out.println("result :{} " + collect5);
     }
 
     /**
@@ -440,7 +452,7 @@ public class StreamLambdaPractice {
     public void removeDuplicates() {
         List<Person> list = InitList.initList();
         System.out.println("========= 根据单个属性(name)去重 ==========");
-        System.out.println("去重前 :{} " + list.toString());
+        System.out.println("去重前 :{} " + list);
         ArrayList<Person> collect = list.stream().collect(
                 Collectors.collectingAndThen(
                         Collectors.toCollection(
@@ -451,7 +463,7 @@ public class StreamLambdaPractice {
         System.out.println("去重后 :{} " + collect.toString());
 
         System.out.println("========= 根据多个属性(name+age)去重 ==========");
-        System.out.println("去重前 :{} " + list.toString());
+        System.out.println("去重前 :{} " + list);
         ArrayList<Person> collect1 = list.stream().collect(
                 Collectors.collectingAndThen(
                         Collectors.toCollection(
@@ -469,9 +481,9 @@ public class StreamLambdaPractice {
          *  因为 @Data 只会重写当前类的属性 不会加上父类的属性 会在某些场景下出现问题
          */
         System.out.println("======== distinct 去重 ==========");
-        System.out.println("去重前 :{} " + list.toString());
+        System.out.println("去重前 :{} " + list);
         List<Person> collect2 = list.stream().distinct().collect(Collectors.toList());
-        System.out.println("去重后 :{} " + collect2.toString());
+        System.out.println("去重后 :{} " + collect2);
 
         System.out.println("======== distinct 去重(Integer String....) ===========");
         List<Object> objects = new ArrayList<>(10);
@@ -486,9 +498,9 @@ public class StreamLambdaPractice {
         objects.add("2");
         objects.add("3");
         objects.add("3");
-        System.out.println("去重前 :{} " + objects.toString());
+        System.out.println("去重前 :{} " + objects);
         List<Object> collect3 = objects.stream().distinct().collect(Collectors.toList());
-        System.out.println("去重后 :{} " + collect3.toString());
+        System.out.println("去重后 :{} " + collect3);
     }
 
 }
