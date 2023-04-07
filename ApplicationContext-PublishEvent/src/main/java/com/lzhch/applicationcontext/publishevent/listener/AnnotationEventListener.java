@@ -25,6 +25,8 @@ public class AnnotationEventListener {
 
     @Async
     @EventListener(SelfEvent.class)
+    // 事务监听, 使用该监听方式要注意失效问题
+    // @TransactionalEventListener(value = MdmMaterialInfoEvent.class, phase = TransactionPhase.AFTER_COMMIT)
     public void typeOne(SelfEvent event) {
         HashMap<String, Object> source = (HashMap<String, Object>) event.getSource();
 
