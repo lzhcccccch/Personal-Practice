@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 /**
  * <p>
@@ -51,6 +50,11 @@ public class AsyncService {
             log.info("线程 :{}  开始; 参数 :{}", name, param);
             Thread.sleep(3000);
             log.info("线程 :{}  结束; 参数 :{}", name, param);
+
+            if ("2".equals(param)) {
+                log.info("2222222222222异常!!!");
+                throw new RuntimeException("测试抛出异常!!!");
+            }
 
             // 直接使用 CompletableFuture 来处理异步的结果, 比Future更加灵活
             return CompletableFuture.completedFuture(param + "执行完毕");
