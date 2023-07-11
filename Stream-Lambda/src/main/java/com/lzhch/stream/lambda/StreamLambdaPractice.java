@@ -19,6 +19,14 @@ import java.util.stream.Stream;
  */
 public class StreamLambdaPractice {
 
+    /**
+     * 原始集合list, 收集(collect)之后的集合resList
+     * <p>
+     * !!! list 收集的结果 resList, cloudFactoryList 集合是新的内存地址,但是里面的元素还是 list 中的元素地址;
+     * 所以如果修改 resList 中元素的值, list 中的也会改变;
+     * 如果要使用原始集合 list 和 收集结果 resList, 则需要对原始集合进行拷贝再操作(注意new ArrayList<>(list)是浅拷贝)
+     */
+
 
     /**
      * foreach/ stream.foreach
